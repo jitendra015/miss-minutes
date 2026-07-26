@@ -1,0 +1,38 @@
+:root { font-family: Inter, ui-sans-serif, system-ui, sans-serif; color: #f8fafc; background: #0b1120; }
+* { box-sizing: border-box; }
+body { min-width: 320px; margin: 0; }
+button, input { font: inherit; }
+button { cursor: pointer; }
+.welcome, .assistant-shell { min-height: 100vh; background: radial-gradient(circle at top, #294263 0%, #101827 55%, #080d16 100%); }
+.welcome { display: grid; place-items: center; padding: 24px; }
+.card { width: min(100%, 640px); padding: clamp(32px, 8vw, 64px); border: 1px solid rgba(255,255,255,.16); border-radius: 28px; background: rgba(15,23,42,.78); box-shadow: 0 24px 80px rgba(0,0,0,.34); }
+.eyebrow { margin: 0 0 12px; color: #a5d8ff; font-size: .75rem; font-weight: 750; letter-spacing: .15em; }
+h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 3.25rem); letter-spacing: -.045em; line-height: 1.07; }
+.message { max-width: 48ch; margin: 22px 0 30px; color: #cbd5e1; font-size: 1.08rem; line-height: 1.6; }
+label { display: block; margin-bottom: 9px; color: #e2e8f0; font-weight: 650; }
+.field-row, .composer { display: flex; gap: 10px; }
+input { min-width: 0; flex: 1; padding: 13px 14px; border: 1px solid #475569; border-radius: 12px; color: inherit; background: #172235; }
+button { border: 0; border-radius: 12px; padding: 13px 18px; color: #0f172a; background: #b9e5ff; font-weight: 750; }
+button:hover:not(:disabled) { background: #e0f2fe; }
+button:disabled { cursor: not-allowed; opacity: .6; }
+.assistant-shell { display: grid; grid-template-rows: auto 1fr auto; max-width: 960px; margin: auto; padding: 24px; gap: 24px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+header h1 { font-size: clamp(1.3rem, 3vw, 2rem); }
+.quiet-button { border: 1px solid #52647f; color: #e2e8f0; background: transparent; white-space: nowrap; }
+.reminders { width: min(100%, 720px); margin: -8px auto 0; padding: 14px 16px; border: 1px solid rgba(255,255,255,.12); border-radius: 14px; background: rgba(24,36,58,.65); color: #cbd5e1; }
+.reminder-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: #f8fafc; }
+.reminder-heading .quiet-button { padding: 7px 10px; font-size: .78rem; }
+.reminders p { margin: 10px 0 0; font-size: .9rem; }
+.reminders ul { display: grid; gap: 8px; margin: 10px 0 0; padding: 0; list-style: none; }
+.reminders li { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.reminders li button { padding: 2px 9px; color: #f8fafc; background: transparent; border: 1px solid #52647f; }
+.chat { display: flex; flex-direction: column; gap: 14px; max-width: 720px; width: 100%; margin: auto; padding: 8px 0; }
+.bubble { max-width: min(82%, 580px); padding: 14px 17px; border-radius: 18px; line-height: 1.55; }
+.bubble.assistant { align-self: flex-start; border: 1px solid rgba(255,255,255,.12); background: #18243a; }
+.bubble.user { align-self: flex-end; color: #07111f; background: #b9e5ff; }
+.composer { width: min(100%, 720px); margin: auto; }
+.voice-button { min-width: 48px; padding-inline: 12px; }
+.voice-actions { display: flex; align-items: center; gap: 14px; width: min(100%, 720px); min-height: 28px; margin: -16px auto 0; color: #cbd5e1; font-size: .88rem; }
+.voice-actions .quiet-button { padding: 8px 11px; font-size: .82rem; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+@media (max-width: 520px) { .field-row, .composer { flex-direction: column; } .assistant-shell { padding: 16px; } header { align-items: flex-start; } .bubble { max-width: 92%; } }

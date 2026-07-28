@@ -9,7 +9,7 @@ npm install
 npm run dev:vercel
 ```
 
-`npm run dev:vercel` runs the Vite app and the Vercel Function together, so chat requests reach `api/chat.ts`. `npm run dev` remains available for UI-only development.
+`npm run dev:vercel` runs the Vite app and the Vercel Function together, so chat requests reach `api/chat.js`. `npm run dev` remains available for UI-only development.
 
 ## Production build
 
@@ -24,7 +24,7 @@ This project is ready for Vercel. Import `jitendra015/miss-minutes` in Vercel an
 - Build command: `npm run build`
 - Publish directory: `dist`
 
-Vercel automatically discovers the `api/` directory and deploys `api/chat.ts` as `/api/chat`.
+Vercel automatically discovers the `api/` directory and deploys `api/chat.js` as `/api/chat`.
 
 ## Assistant architecture
 

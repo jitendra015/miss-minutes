@@ -1,4 +1,3 @@
-import type { IncomingMessage, ServerResponse } from 'node:http'
 import OpenAI from 'openai'
 
 const instructions = `You are Miss Minutes, a warm and honest conversational assistant.
@@ -8,27 +7,19 @@ Keep ordinary replies concise, helpful, and human.`
 
 const model = process.env.OPENAI_MODEL?.trim() || 'gpt-5.6-luna'
 
-type ChatRequest = IncomingMessage & { body?: unknown }
-type ChatPayload = {
-  message?: unknown
-  name?: unknown
-  learning?: { preferredTone?: unknown; helpfulTopics?: unknown }
-  history?: Array<{ speaker?: unknown; text?: unknown }>
-}
-
-function sendJson(response: ServerResponse, statusCode: number, body: Record<string, unknown>) {
+function sendJson(response, statusCode, body) {
   response.statusCode = statusCode
   response.setHeader('Content-Type', 'application/json')
   response.end(JSON.stringify(body))
 }
 
-function parseBody(body: unknown): ChatPayload {
-  if (typeof body === 'string') return JSON.parse(body) as ChatPayload
-  if (body && typeof body === 'object') return body as ChatPayload
+function parseBody(body) {
+  if (typeof body === 'string') return JSON.parse(body)
+  if (body && typeof body === 'object') return body
   return {}
 }
 
-export default async function handler(request: ChatRequest, response: ServerResponse) {
+export default async function handler(request, response) {
   if (request.method !== 'POST') {
     response.setHeader('Allow', 'POST')
     return sendJson(response, 405, { error: 'Method not allowed.' })
@@ -45,7 +36,7 @@ export default async function handler(request: ChatRequest, response: ServerResp
     }
 
     const tone = learning?.preferredTone === 'concise' || learning?.preferredTone === 'detailed' ? learning.preferredTone : 'warm'
-    const topics = Array.isArray(learning?.helpfulTopics) ? learning.helpfulTopics.filter((topic): topic is string => typeof topic === 'string').slice(-12) : []
+    const topics = Array.isArray(learning?.helpfulTopics) ? learning.helpfulTopics.filter((topic) => typeof topic === 'string').slice(-12) : []
     const context = Array.isArray(history) ? history.filter((item) => (item.speaker === 'user' || item.speaker === 'assistant') && typeof item.text === 'string').slice(-8).map((item) => `${item.speaker}: ${item.text}`).join('\n') : ''
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
     const completion = await client.responses.create({

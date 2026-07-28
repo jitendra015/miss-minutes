@@ -1,19 +1,6 @@
 import { FormEvent, useMemo, useState } from 'react'
 import { useAssistant } from './hooks/useAssistant'
 
-const preferredFemaleVoices = [
-  'Microsoft Zira', 'Microsoft Jenny', 'Microsoft Aria', 'Google US English Female',
-  'Samantha', 'Victoria', 'Karen', 'Moira', 'Tessa', 'Veena', 'Fiona', 'Ava', 'Emma',
-]
-
-function femaleVoice(voices: SpeechSynthesisVoice[]) {
-  const preferred = voices.find((voice) => preferredFemaleVoices.some((name) => voice.name.toLowerCase().includes(name.toLowerCase())))
-  if (preferred) return preferred
-
-  const likelyFemale = voices.find((voice) => /zira|jenny|aria|samantha|victoria|karen|moira|tessa|veena|fiona|ava|emma|female/i.test(voice.name))
-  return likelyFemale ?? voices.find((voice) => voice.lang.startsWith('en'))
-}
-
 export default function App() {
   const assistant = useAssistant()
   const [chosenName, setChosenName] = useState('')
@@ -57,21 +44,32 @@ export default function App() {
     recognition.start()
   }
 
-  function speak() {
-    if (!latestAssistantMessage || !('speechSynthesis' in window)) {
+  async function speak() {
+    if (!latestAssistantMessage) {
       setVoiceNote('Spoken replies are not available in this browser.')
       return
     }
 
-    window.speechSynthesis.cancel()
-    const utterance = new SpeechSynthesisUtterance(latestAssistantMessage.text)
-    const voice = femaleVoice(window.speechSynthesis.getVoices())
-    if (voice) utterance.voice = voice
-    utterance.pitch = 1.12
-    utterance.rate = 0.96
-    utterance.onend = () => setVoiceNote('')
-    window.speechSynthesis.speak(utterance)
-    setVoiceNote('Miss Minutes is speaking…')
+    try {
+      setVoiceNote('Miss Minutes is preparing her reply…')
+      const response = await fetch('/api/voice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: latestAssistantMessage.text }),
+      })
+      if (!response.ok) throw new Error()
+
+      const audioUrl = URL.createObjectURL(await response.blob())
+      const audio = new Audio(audioUrl)
+      audio.onended = () => {
+        URL.revokeObjectURL(audioUrl)
+        setVoiceNote('')
+      }
+      await audio.play()
+      setVoiceNote('Miss Minutes is speaking…')
+    } catch {
+      setVoiceNote('Miss Minutes could not generate her voice. Check the OpenAI API credits and try again.')
+    }
   }
 
   if (!isReady) {

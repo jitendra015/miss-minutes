@@ -92,6 +92,13 @@ export default function App() {
         {assistant.messages.map((message) => <article className={`bubble ${message.speaker}`} key={message.id}>{message.text}</article>)}
         {assistant.isThinking && <article className="bubble assistant">Miss Minutes is thinking…</article>}
       </section>
+      <section className="learning" aria-label="Assistant learning controls">
+        <span>Response style</span>
+        {(['warm', 'concise', 'detailed'] as const).map((tone) => <button className="quiet-button" type="button" key={tone} aria-pressed={assistant.learning.preferredTone === tone} onClick={() => assistant.setPreferredTone(tone)}>{tone}</button>)}
+        <span>Was the latest reply helpful?</span>
+        <button className="quiet-button" type="button" onClick={() => assistant.rateLatest(true)}>Yes</button>
+        <button className="quiet-button" type="button" onClick={() => assistant.rateLatest(false)}>No</button>
+      </section>
       <form className="composer" onSubmit={send}>
         <label className="sr-only" htmlFor="message">Message Miss Minutes</label>
         <input id="message" value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Tell Miss Minutes what’s on your mind…" disabled={assistant.isThinking} />

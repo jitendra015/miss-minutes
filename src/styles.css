@@ -34,5 +34,7 @@ header h1 { font-size: clamp(1.3rem, 3vw, 2rem); }
 .voice-button { min-width: 48px; padding-inline: 12px; }
 .voice-actions { display: flex; align-items: center; gap: 14px; width: min(100%, 720px); min-height: 28px; margin: -16px auto 0; color: #cbd5e1; font-size: .88rem; }
 .voice-actions .quiet-button { padding: 8px 11px; font-size: .82rem; }
+.learning { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; width: min(100%, 720px); margin: -10px auto 0; color: #cbd5e1; font-size: .86rem; }
+.learning .quiet-button { padding: 7px 10px; font-size: .8rem; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
 @media (max-width: 520px) { .field-row, .composer { flex-direction: column; } .assistant-shell { padding: 16px; } header { align-items: flex-start; } .bubble { max-width: 92%; } }

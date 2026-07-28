@@ -11,8 +11,6 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
-    "@netlify/functions": "latest",
-    "openai": "latest",
     "vite": "latest",
     "react": "latest",
     "react-dom": "latest"

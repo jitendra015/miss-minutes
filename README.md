@@ -39,16 +39,16 @@ No API key is stored in the browser. When an AI provider is added, its key must 
 
 ## Activate the AI service
 
-1. Create an OpenAI API key in your OpenAI Platform account.
-2. In Vercel, open the project **Settings > Environment Variables** and add `OPENAI_API_KEY` for Production (and Preview/Development if needed).
-3. Optionally add `OPENAI_MODEL` to choose a model enabled for that OpenAI project. The default is `gpt-5.6-luna`.
+1. Create a Groq API key in your GroqCloud account.
+2. In Vercel, open the project **Settings > Environment Variables** and add `GROQ_API_KEY` for Production (and Preview/Development if needed).
+3. Optionally add `GROQ_MODEL` to choose a Groq model. The default is the free-tier-friendly `llama-3.1-8b-instant`.
 4. Redeploy the site.
 
-The web app calls a Vercel Function, which uses the key securely. If the function is unavailable, misconfigured, or OpenAI returns an error, the UI displays the error rather than pretending that a local response came from the AI service.
+The web app calls Vercel Functions, which use the key securely. If Groq is unavailable, misconfigured, or rate-limited, the UI displays the error rather than pretending that a local response came from the AI service.
 
 ## Learning and improvement
 
-Miss Minutes uses an LLM through the OpenAI Responses API when `OPENAI_API_KEY` is configured. It learns only from controls you use: preferred reply style and helpful/not-helpful feedback are stored locally in your browser and used as limited context for later requests. It does not silently fine-tune a model, upload conversation archives, alter source code, or make external changes on its own.
+Miss Minutes uses Groq's chat and text-to-speech APIs when `GROQ_API_KEY` is configured. It learns only from controls you use: preferred reply style and helpful/not-helpful feedback are stored locally in your browser and used as limited context for later requests. It does not silently fine-tune a model, upload conversation archives, alter source code, or make external changes on its own.
 
 ## Available live skills
 

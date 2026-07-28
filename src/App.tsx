@@ -68,7 +68,7 @@ export default function App() {
       await audio.play()
       setVoiceNote('Miss Minutes is speaking…')
     } catch {
-      setVoiceNote('Miss Minutes could not generate her voice. Check the OpenAI API credits and try again.')
+      setVoiceNote('Miss Minutes could not generate her voice. Check the Groq API key and free-tier limits, then try again.')
     }
   }
 

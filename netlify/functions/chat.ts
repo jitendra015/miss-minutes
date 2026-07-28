@@ -16,16 +16,19 @@ export const handler: Handler = async (event) => {
   }
 
   try {
-    const { message, name } = JSON.parse(event.body ?? '{}') as { message?: unknown; name?: unknown }
+    const { message, name, learning, history } = JSON.parse(event.body ?? '{}') as { message?: unknown; name?: unknown; learning?: { preferredTone?: unknown; helpfulTopics?: unknown }; history?: Array<{ speaker?: unknown; text?: unknown }> }
     if (typeof message !== 'string' || !message.trim()) {
       return { statusCode: 400, body: JSON.stringify({ error: 'A message is required.' }) }
     }
 
+    const tone = learning?.preferredTone === 'concise' || learning?.preferredTone === 'detailed' ? learning.preferredTone : 'warm'
+    const topics = Array.isArray(learning?.helpfulTopics) ? learning.helpfulTopics.filter((topic): topic is string => typeof topic === 'string').slice(-12) : []
+    const context = Array.isArray(history) ? history.filter((item) => (item.speaker === 'user' || item.speaker === 'assistant') && typeof item.text === 'string').slice(-8).map((item) => `${item.speaker}: ${item.text}`).join('\n') : ''
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
     const response = await client.responses.create({
       model: 'gpt-5.6-luna',
-      instructions: `${instructions}\nThe user's preferred name is ${typeof name === 'string' && name.trim() ? name.trim() : 'not known'}.`,
-      input: message.trim(),
+      instructions: `${instructions}\nThe user's preferred name is ${typeof name === 'string' && name.trim() ? name.trim() : 'not known'}.\nPreferred response style: ${tone}.\nHelpful-topic signals from explicit feedback: ${topics.join(', ') || 'none'}.`,
+      input: `${context ? `Recent conversation:\n${context}\n\n` : ''}user: ${message.trim()}`,
       text: { verbosity: 'low' },
     })
 

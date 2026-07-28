@@ -19,13 +19,23 @@ export default async function handler(request, response) {
       headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ model: 'canopylabs/orpheus-v1-english', voice: process.env.GROQ_TTS_VOICE?.trim() || 'hannah', input: `[warm] ${body.text.trim().slice(0, 190)}`, response_format: 'wav' }),
     })
-    if (!groqResponse.ok) throw new Error(`Groq voice request failed with ${groqResponse.status}.`)
+    if (!groqResponse.ok) {
+      const details = await groqResponse.json().catch(() => ({}))
+      const error = new Error(typeof details?.error?.message === 'string' ? details.error.message : `Groq voice request failed with ${groqResponse.status}.`)
+      error.status = groqResponse.status
+      throw error
+    }
     response.statusCode = 200
     response.setHeader('Content-Type', 'audio/wav')
     response.setHeader('Cache-Control', 'no-store')
     response.end(Buffer.from(await groqResponse.arrayBuffer()))
   } catch (error) {
     console.error('Miss Minutes voice error:', error)
-    return sendJson(response, 502, { error: 'Miss Minutes could not generate speech.' })
+    const status = typeof error?.status === 'number' ? error.status : 502
+    let message = 'Miss Minutes could not generate her voice. Check the Vercel function logs for details.'
+    if (status === 401) message = 'Groq rejected the API key. Check GROQ_API_KEY in Vercel, then redeploy.'
+    else if (status === 429) message = 'The Groq free-tier voice limit has been reached. Please try again later.'
+    else if (status === 403) message = 'This Groq API key cannot use text-to-speech. Check the Groq project permissions.'
+    return sendJson(response, status, { error: message })
   }
 }

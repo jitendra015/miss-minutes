@@ -57,7 +57,10 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: latestAssistantMessage.text }),
       })
-      if (!response.ok) throw new Error()
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}))
+        throw new Error(typeof body.error === 'string' ? body.error : 'Miss Minutes could not generate her voice.')
+      }
 
       const audioUrl = URL.createObjectURL(await response.blob())
       const audio = new Audio(audioUrl)
@@ -67,8 +70,8 @@ export default function App() {
       }
       await audio.play()
       setVoiceNote('Miss Minutes is speaking…')
-    } catch {
-      setVoiceNote('Miss Minutes could not generate her voice. Check the Groq API key and free-tier limits, then try again.')
+    } catch (error) {
+      setVoiceNote(error instanceof Error ? error.message : 'Miss Minutes could not generate her voice.')
     }
   }
 

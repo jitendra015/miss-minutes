@@ -1,8 +1,8 @@
 import { createReply } from '../core/assistant'
-import type { Profile } from '../types/assistant'
+import type { LearningProfile, Message, Profile } from '../types/assistant'
 import { getWeatherReply } from './weather'
 
-export async function getChatReply(message: string, profile: Profile) {
+export async function getChatReply(message: string, profile: Profile, learning: LearningProfile, history: Message[]) {
   const weatherReply = await getWeatherReply(message)
   if (weatherReply) return weatherReply
 
@@ -10,7 +10,7 @@ export async function getChatReply(message: string, profile: Profile) {
     const response = await fetch('/.netlify/functions/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message, name: profile.name }),
+      body: JSON.stringify({ message, name: profile.name, learning, history: history.slice(-8) }),
     })
 
     if (response.ok) {

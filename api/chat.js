@@ -49,6 +49,15 @@ export default async function handler(request, response) {
     return sendJson(response, 200, { reply: completion.output_text })
   } catch (error) {
     console.error('Miss Minutes chat error:', error)
-    return sendJson(response, 502, { error: 'Miss Minutes could not reach the AI service. Check the Vercel function logs for details.' })
+    const status = typeof error?.status === 'number' ? error.status : 502
+    const code = typeof error?.code === 'string' ? error.code : ''
+    let message = 'Miss Minutes could not reach the AI service. Check the Vercel function logs for details.'
+
+    if (status === 401) message = 'OpenAI rejected the API key. Replace OPENAI_API_KEY in Vercel with a valid OpenAI Platform key, then redeploy.'
+    else if (status === 403) message = 'This OpenAI project is not permitted to use the selected model. Check the project and model access settings.'
+    else if (status === 404 || code === 'model_not_found') message = 'The configured OpenAI model is unavailable. Set OPENAI_MODEL to a model enabled for this API key, then redeploy.'
+    else if (status === 429) message = 'The OpenAI project has reached its rate or usage limit. Check its billing and usage limits.'
+
+    return sendJson(response, status, { error: message })
   }
 }

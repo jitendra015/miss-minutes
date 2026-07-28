@@ -43,6 +43,10 @@ No API key is stored in the browser. When an AI provider is added, its key must 
 
 The web app calls a Netlify Function, which uses the key securely. Without the key, the app continues to work using its local development response engine.
 
+## Learning and improvement
+
+Miss Minutes uses an LLM through the OpenAI Responses API when `OPENAI_API_KEY` is configured. It learns only from controls you use: preferred reply style and helpful/not-helpful feedback are stored locally in your browser and used as limited context for later requests. It does not silently fine-tune a model, upload conversation archives, alter source code, or make external changes on its own.
+
 ## Available live skills
 
 - **Weather** — ask “What is the weather in Mumbai?” The app securely looks up the city and current conditions through Open-Meteo. No personal API key is required for this initial integration.

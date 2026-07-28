@@ -11,6 +11,12 @@ export type Profile = {
   name: string
 }
 
+export type LearningProfile = {
+  preferredTone: 'warm' | 'concise' | 'detailed'
+  helpfulTopics: string[]
+  feedbackCount: number
+}
+
 export type Reminder = {
   id: string
   text: string

@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import { forgetProfile, loadProfile, saveProfile } from '../core/memory'
+import { forgetProfile, learnFromFeedback, loadLearning, loadProfile, saveLearning, saveProfile } from '../core/memory'
 import { loadReminders, parseReminder, saveReminders } from '../core/reminders'
 import { getChatReply } from '../services/chat'
-import type { Message, Reminder } from '../types/assistant'
+import type { LearningProfile, Message, Reminder } from '../types/assistant'
 
 const greeting = (name: string): Message => ({
   id: crypto.randomUUID(),
@@ -14,6 +14,7 @@ const greeting = (name: string): Message => ({
 export function useAssistant() {
   const initialProfile = useMemo(loadProfile, [])
   const [name, setName] = useState(initialProfile.name)
+  const [learning, setLearning] = useState<LearningProfile>(loadLearning)
   const [messages, setMessages] = useState<Message[]>([greeting(initialProfile.name)])
   const [isThinking, setIsThinking] = useState(false)
   const [reminders, setReminders] = useState<Reminder[]>(loadReminders)
@@ -72,7 +73,7 @@ export function useAssistant() {
       return
     }
     setIsThinking(true)
-    const reply = await getChatReply(cleanedText, { name })
+    const reply = await getChatReply(cleanedText, { name }, learning, messages)
     setMessages((current) => [...current, {
       id: crypto.randomUUID(), speaker: 'assistant', text: reply, createdAt: new Date().toISOString(),
     }])
@@ -95,5 +96,19 @@ export function useAssistant() {
     saveReminders(updated)
   }
 
-  return { name, messages, isThinking, reminders, begin, send, reset, enableNotifications, removeReminder }
+  function rateLatest(helpful: boolean) {
+    const latestUser = [...messages].reverse().find((message) => message.speaker === 'user')
+    if (!latestUser) return
+    const updated = learnFromFeedback(learning, latestUser.text, helpful)
+    setLearning(updated)
+    saveLearning(updated)
+  }
+
+  function setPreferredTone(preferredTone: LearningProfile['preferredTone']) {
+    const updated = { ...learning, preferredTone }
+    setLearning(updated)
+    saveLearning(updated)
+  }
+
+  return { name, messages, isThinking, reminders, learning, begin, send, reset, enableNotifications, removeReminder, rateLatest, setPreferredTone }
 }

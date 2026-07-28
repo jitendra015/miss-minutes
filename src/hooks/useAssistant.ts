@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { forgetProfile, learnFromFeedback, loadLearning, loadProfile, saveLearning, saveProfile } from '../core/memory'
 import { loadReminders, parseReminder, saveReminders } from '../core/reminders'
-import { getChatReply } from '../services/chat'
+import { ChatServiceError, getChatReply } from '../services/chat'
 import type { LearningProfile, Message, Reminder } from '../types/assistant'
 
 const greeting = (name: string): Message => ({
@@ -73,7 +73,12 @@ export function useAssistant() {
       return
     }
     setIsThinking(true)
-    const reply = await getChatReply(cleanedText, { name }, learning, messages)
+    let reply: string
+    try {
+      reply = await getChatReply(cleanedText, { name }, learning, messages)
+    } catch (error) {
+      reply = error instanceof ChatServiceError ? error.message : 'I could not reach the AI service.'
+    }
     setMessages((current) => [...current, {
       id: crypto.randomUUID(), speaker: 'assistant', text: reply, createdAt: new Date().toISOString(),
     }])

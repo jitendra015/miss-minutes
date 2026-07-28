@@ -8,7 +8,7 @@ export async function getWeatherReply(message: string) {
   if (!city) return null
 
   try {
-    const response = await fetch(`/.netlify/functions/weather?city=${encodeURIComponent(city)}`)
+    const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}`)
     if (!response.ok) return null
     const body = await response.json() as { reply?: unknown }
     return typeof body.reply === 'string' ? body.reply : null

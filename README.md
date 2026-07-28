@@ -6,8 +6,10 @@ Miss Minutes is a human-centered conversational assistant.
 
 ```bash
 npm install
-npm run dev
+npm run dev:vercel
 ```
+
+`npm run dev:vercel` runs the Vite app and the Vercel Function together, so chat requests reach `api/chat.ts`. `npm run dev` remains available for UI-only development.
 
 ## Production build
 
@@ -15,14 +17,14 @@ npm run dev
 npm run build
 ```
 
-## Netlify
+## Vercel
 
-This project is ready for Netlify. Import `jitendra015/miss-minutes` in Netlify and leave the detected settings as:
+This project is ready for Vercel. Import `jitendra015/miss-minutes` in Vercel and leave the detected settings as:
 
 - Build command: `npm run build`
 - Publish directory: `dist`
 
-The `netlify.toml` file keeps these settings in the repository and handles browser routes.
+Vercel automatically discovers the `api/` directory and deploys `api/chat.ts` as `/api/chat`.
 
 ## Assistant architecture
 
@@ -31,17 +33,18 @@ The `netlify.toml` file keeps these settings in the repository and handles brows
 - `src/core/assistant.ts` — local response engine, replaceable with an AI provider
 - `src/core/memory.ts` — on-device user preference memory
 - `src/types/assistant.ts` — shared conversation types
-- `netlify/functions/` — secure boundary for future server-side AI calls
+- `api/` — secure server-side boundary for AI and weather calls
 
-No API key is stored in the browser. When an AI provider is added, its key must be set as a Netlify environment variable and used only inside a function.
+No API key is stored in the browser. When an AI provider is added, its key must be set as a Vercel environment variable and used only inside a function.
 
 ## Activate the AI service
 
 1. Create an OpenAI API key in your OpenAI Platform account.
-2. In Netlify, open the Miss Minutes site settings and add `OPENAI_API_KEY` as an environment variable.
-3. Redeploy the site.
+2. In Vercel, open the project **Settings > Environment Variables** and add `OPENAI_API_KEY` for Production (and Preview/Development if needed).
+3. Optionally add `OPENAI_MODEL` to choose a model enabled for that OpenAI project. The default is `gpt-5.6-luna`.
+4. Redeploy the site.
 
-The web app calls a Netlify Function, which uses the key securely. Without the key, the app continues to work using its local development response engine.
+The web app calls a Vercel Function, which uses the key securely. If the function is unavailable, misconfigured, or OpenAI returns an error, the UI displays the error rather than pretending that a local response came from the AI service.
 
 ## Learning and improvement
 

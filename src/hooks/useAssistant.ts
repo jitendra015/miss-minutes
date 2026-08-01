@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { forgetProfile, learnFromFeedback, loadLearning, loadProfile, saveLearning, saveProfile } from '../core/memory'
+import { forgetProfile, learnFromFeedback, loadLearning, loadMessages, loadProfile, saveLearning, saveMessages, saveProfile } from '../core/memory'
 import { loadReminders, parseReminder, saveReminders } from '../core/reminders'
 import { ChatServiceError, getChatReply } from '../services/chat'
 import type { LearningProfile, Message, Reminder } from '../types/assistant'
@@ -13,11 +13,14 @@ const greeting = (name: string): Message => ({
 
 export function useAssistant() {
   const initialProfile = useMemo(loadProfile, [])
+  const initialMessages = useMemo(loadMessages, [])
   const [name, setName] = useState(initialProfile.name)
   const [learning, setLearning] = useState<LearningProfile>(loadLearning)
-  const [messages, setMessages] = useState<Message[]>([greeting(initialProfile.name)])
+  const [messages, setMessages] = useState<Message[]>(initialMessages.length ? initialMessages : [greeting(initialProfile.name)])
   const [isThinking, setIsThinking] = useState(false)
   const [reminders, setReminders] = useState<Reminder[]>(loadReminders)
+
+  useEffect(() => { saveMessages(messages) }, [messages])
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -57,9 +60,10 @@ export function useAssistant() {
     const cleanedText = text.trim()
     if (!cleanedText || isThinking) return
 
-    setMessages((current) => [...current, {
+    const userMessage: Message = {
       id: crypto.randomUUID(), speaker: 'user', text: cleanedText, createdAt: new Date().toISOString(),
-    }])
+    }
+    setMessages((current) => [...current, userMessage])
 
     const reminder = parseReminder(cleanedText)
     if (reminder) {
@@ -75,7 +79,7 @@ export function useAssistant() {
     setIsThinking(true)
     let reply: string
     try {
-      reply = await getChatReply(cleanedText, { name }, learning, messages)
+      reply = await getChatReply(cleanedText, { name }, learning, [...messages, userMessage])
     } catch (error) {
       reply = error instanceof ChatServiceError ? error.message : 'I could not reach the AI service.'
     }

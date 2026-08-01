@@ -1,7 +1,9 @@
-import type { LearningProfile, Profile } from '../types/assistant'
+import type { LearningProfile, Message, Profile } from '../types/assistant'
 
 const profileKey = 'miss-minutes.profile'
 const learningKey = 'miss-minutes.learning'
+const conversationKey = 'miss-minutes.conversation'
+const maxStoredMessages = 100
 const defaultLearning: LearningProfile = { preferredTone: 'warm', helpfulTopics: [], feedbackCount: 0 }
 
 export function loadProfile(): Profile {
@@ -19,9 +21,30 @@ export function saveProfile(profile: Profile) {
   localStorage.setItem(profileKey, JSON.stringify(profile))
 }
 
+export function loadMessages(): Message[] {
+  const saved = localStorage.getItem(conversationKey)
+  if (!saved) return []
+
+  try {
+    const parsed = JSON.parse(saved) as unknown
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter((message): message is Message => Boolean(
+      message && typeof message === 'object' && typeof message.id === 'string'
+      && (message.speaker === 'user' || message.speaker === 'assistant')
+      && typeof message.text === 'string' && typeof message.createdAt === 'string',
+    )).slice(-maxStoredMessages)
+  } catch {
+    return []
+  }
+}
+
+export function saveMessages(messages: Message[]) {
+  localStorage.setItem(conversationKey, JSON.stringify(messages.slice(-maxStoredMessages)))
+}
 export function forgetProfile() {
   localStorage.removeItem(profileKey)
   localStorage.removeItem(learningKey)
+  localStorage.removeItem(conversationKey)
 }
 
 export function loadLearning(): LearningProfile {
